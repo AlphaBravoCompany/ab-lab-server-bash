@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  code-server:
+    image: rancher/rancher:$rancher_version
+    container_name: rancher
+    privileged: true
+    volumes:
+      - rancher:/var/lib/rancher
+      - /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io.pem:/etc/rancher/ssl/cert.pem
+      - /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io-key.pem:/etc/rancher/ssl/key.pem
+      - /alphabravo/misc/certs/proxy_rootCA.pem:/etc/rancher/ssl/cacerts.pem
+    ports:
+      - 12080:80
+      - 12443:443
+    restart: unless-stopped
+    environment: 
+      - CATTLE_BOOTSTRAP_PASSWORD=$rancher_password
+volumes:
+  rancher: 

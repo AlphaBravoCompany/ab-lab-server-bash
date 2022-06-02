@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#Server Details
+##Change this to your proxy server ip. Internal for local VMs or external for cloud VMs.
+proxy_ip=YOURPROXYIP
+##Change this to your lab server ip. Internal for local VMs or external for cloud VMs.
+lab_server_ip=YOURLABSERVERIP
+##Change this to a no-password sudo user or root user for your VMs
+user=YOURSERVERUSER
+##Change this the local path for your ssh private key
+ssh_key=/PATH/TO/PRIVATE/KEY
+
+#Certificate - Public or Private
+## If you have a domain name and supported DNS host, you can set to `dns`. If you are on a private VM, set to `private`.
+## Options 
+cert=dns
+
+#Rancher Details
+rancher_version=v2.6.5
+##Change this to something secure
+rancher_password=lockitdown!!
+
+#Code Server Details
+code_version=4.4.0
+##Change this to something secure
+code_password=lockitdown!!
+
+#Portainer Details
+##Change this to something secure
+portainer_password=lockitdown!!
+
+#HAProxy Details
+##Change this to something secure
+haproxy_password=lockitdown!!
+
+#Software Versions
+k3s_version=v1.22.9+k3s1
+rke2_version=v1.22.9+rke2r2
+k3d_version=v5.4.1
+rke_version=v1.3.11
+
+#Lab Server Repos
+public_labs_repo=https://github.com/AlphaBravoCompany/ab-training-labs.git
+private_labs_repo=
+private_labs_key=

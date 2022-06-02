@@ -1,0 +1,94 @@
+# Testing HAProxy Config: https://www.haproxy.com/blog/testing-your-haproxy-configuration/
+global
+        log /dev/log    local0
+        log /dev/log    local1 notice
+        chroot /var/lib/haproxy
+        stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+        stats timeout 30s
+        user haproxy
+        group haproxy
+        daemon
+
+defaults
+        log     global
+        mode    http
+        option  httplog
+        option  dontlognull
+        timeout connect 10s
+        timeout client  60s
+        timeout server  60s
+        errorfile 400 /etc/haproxy/errors/400.http
+        errorfile 403 /etc/haproxy/errors/403.http
+        errorfile 408 /etc/haproxy/errors/408.http
+        errorfile 500 /etc/haproxy/errors/500.http
+        errorfile 502 /etc/haproxy/errors/502.http
+        errorfile 503 /etc/haproxy/errors/503.http
+        errorfile 504 /etc/haproxy/errors/504.http
+
+        stats enable
+        stats hide-version
+        stats refresh 30s
+        stats show-node
+        stats auth admin:$haproxy_password
+        stats uri  /stats
+
+frontend https_in
+        mode http
+        bind *:80
+        bind *:443 ssl crt /alphabravo/misc/certs/cert-bundle.pem
+        acl tls req.ssl_hello_type 1
+        http-request redirect scheme https unless { ssl_fc }
+        
+        use_backend code_lab-server if { hdr(host) code.$proxy_ip.nip.io }
+        use_backend rancher_lab-server if { hdr(host) rancher.$proxy_ip.nip.io }
+        use_backend portainer_lab-server if { hdr(host) portainer.$proxy_ip.nip.io }
+        use_backend 10000_lab-server if { hdr(host) 10000.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10001_lab-server if { hdr(host) 10001.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10002_lab-server if { hdr(host) 10002.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10003_lab-server if { hdr(host) 10003.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10004_lab-server if { hdr(host) 10004.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10005_lab-server if { hdr(host) 10005.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10006_lab-server if { hdr(host) 10006.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10007_lab-server if { hdr(host) 10007.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10008_lab-server if { hdr(host) 10008.$proxy_ip.nip.io } { ssl_fc }
+        use_backend 10009_lab-server if { hdr(host) 10009.$proxy_ip.nip.io } { ssl_fc }
+        
+
+backend code_lab-server
+        server lab-server $lab_server_ip:8080 check ssl verify none
+
+backend rancher_lab-server
+        server lab-server $lab_server_ip:12443 check ssl verify none
+
+backend portainer_lab-server
+        server lab-server $lab_server_ip:9000 check ssl verify none
+
+backend 10000_lab-server
+        server lab-server $lab_server_ip:10000 check
+
+backend 10001_lab-server
+        server lab-server $lab_server_ip:10001 check
+
+backend 10002_lab-server
+        server lab-server $lab_server_ip:10002 check
+
+backend 10003_lab-server
+        server lab-server $lab_server_ip:10003 check
+
+backend 10004_lab-server
+        server lab-server $lab_server_ip:10004 check
+
+backend 10005_lab-server
+        server lab-server $lab_server_ip:10005 check
+
+backend 10006_lab-server
+        server lab-server $lab_server_ip:10006 check
+
+backend 10007_lab-server
+        server lab-server $lab_server_ip:10007 check
+
+backend 10008_lab-server
+        server lab-server $lab_server_ip:10008 check
+
+backend 10009_lab-server
+        server lab-server $lab_server_ip:10009 check
