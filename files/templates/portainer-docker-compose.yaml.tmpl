@@ -8,8 +8,8 @@ services:
     volumes:
       - /ab/misc/portainer/data:/data
       - /var/run/docker.sock:/var/run/docker.sock
-      - /alphabravo/misc/certs/_wildcard.$lab_server_ip.nip.io.pem:/certs/fullchain.pem
-      - /alphabravo/misc/certs/_wildcard.$lab_server_ip.nip.io-key.pem:/certs/privkey.pem
+      - /alphabravo/misc/certs/fullchain.pem:/certs/fullchain.pem
+      - /alphabravo/misc/certs/key.pem:/certs/privkey.pem
       - /alphabravo/misc/portainer/portainer-password.txt:/portainer-password.txt
     ports:
       - "9000:9443"

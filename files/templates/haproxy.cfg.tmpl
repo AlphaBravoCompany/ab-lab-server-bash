@@ -29,7 +29,7 @@ defaults
         stats hide-version
         stats refresh 30s
         stats show-node
-        stats auth admin:$haproxy_password
+        stats auth admin:<HAPROXY_PASSWORD>
         stats uri  /stats
 
 frontend https_in
@@ -39,56 +39,56 @@ frontend https_in
         acl tls req.ssl_hello_type 1
         http-request redirect scheme https unless { ssl_fc }
         
-        use_backend code_lab-server if { hdr(host) code.$proxy_ip.nip.io }
-        use_backend rancher_lab-server if { hdr(host) rancher.$proxy_ip.nip.io }
-        use_backend portainer_lab-server if { hdr(host) portainer.$proxy_ip.nip.io }
-        use_backend 10000_lab-server if { hdr(host) 10000.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10001_lab-server if { hdr(host) 10001.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10002_lab-server if { hdr(host) 10002.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10003_lab-server if { hdr(host) 10003.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10004_lab-server if { hdr(host) 10004.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10005_lab-server if { hdr(host) 10005.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10006_lab-server if { hdr(host) 10006.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10007_lab-server if { hdr(host) 10007.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10008_lab-server if { hdr(host) 10008.$proxy_ip.nip.io } { ssl_fc }
-        use_backend 10009_lab-server if { hdr(host) 10009.$proxy_ip.nip.io } { ssl_fc }
+        use_backend code_lab-server if { hdr(host) code.<PROXY_IP>.nip.io }
+        use_backend rancher_lab-server if { hdr(host) rancher.<PROXY_IP>.nip.io }
+        use_backend portainer_lab-server if { hdr(host) portainer.<PROXY_IP>.nip.io }
+        use_backend 10000_lab-server if { hdr(host) 10000.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10001_lab-server if { hdr(host) 10001.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10002_lab-server if { hdr(host) 10002.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10003_lab-server if { hdr(host) 10003.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10004_lab-server if { hdr(host) 10004.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10005_lab-server if { hdr(host) 10005.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10006_lab-server if { hdr(host) 10006.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10007_lab-server if { hdr(host) 10007.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10008_lab-server if { hdr(host) 10008.<PROXY_IP>.nip.io } { ssl_fc }
+        use_backend 10009_lab-server if { hdr(host) 10009.<PROXY_IP>.nip.io } { ssl_fc }
         
 
 backend code_lab-server
-        server lab-server $lab_server_ip:8080 check ssl verify none
+        server lab-server <LAB_SERVER_IP>:8080 check ssl verify none
 
 backend rancher_lab-server
-        server lab-server $lab_server_ip:12443 check ssl verify none
+        server lab-server <LAB_SERVER_IP>:12443 check ssl verify none
 
 backend portainer_lab-server
-        server lab-server $lab_server_ip:9000 check ssl verify none
+        server lab-server <LAB_SERVER_IP>:9000 check ssl verify none
 
 backend 10000_lab-server
-        server lab-server $lab_server_ip:10000 check
+        server lab-server <LAB_SERVER_IP>:10000 check
 
 backend 10001_lab-server
-        server lab-server $lab_server_ip:10001 check
+        server lab-server <LAB_SERVER_IP>:10001 check
 
 backend 10002_lab-server
-        server lab-server $lab_server_ip:10002 check
+        server lab-server <LAB_SERVER_IP>:10002 check
 
 backend 10003_lab-server
-        server lab-server $lab_server_ip:10003 check
+        server lab-server <LAB_SERVER_IP>:10003 check
 
 backend 10004_lab-server
-        server lab-server $lab_server_ip:10004 check
+        server lab-server <LAB_SERVER_IP>:10004 check
 
 backend 10005_lab-server
-        server lab-server $lab_server_ip:10005 check
+        server lab-server <LAB_SERVER_IP>:10005 check
 
 backend 10006_lab-server
-        server lab-server $lab_server_ip:10006 check
+        server lab-server <LAB_SERVER_IP>:10006 check
 
 backend 10007_lab-server
-        server lab-server $lab_server_ip:10007 check
+        server lab-server <LAB_SERVER_IP>:10007 check
 
 backend 10008_lab-server
-        server lab-server $lab_server_ip:10008 check
+        server lab-server <LAB_SERVER_IP>:10008 check
 
 backend 10009_lab-server
-        server lab-server $lab_server_ip:10009 check
+        server lab-server <LAB_SERVER_IP>:10009 check

@@ -4,6 +4,8 @@ set -e
 G="\e[32m"
 E="\e[0m"
 
+CERTGEN=<CERT>
+
 if ! grep -q 'Ubuntu' /etc/issue
   then
     echo -----------------------------------------------
@@ -15,17 +17,19 @@ fi
 ## Generate cert with mkcert
 mkcert -install
 cd /alphabravo/misc/certs
-mkcert "*.$lab_server_ip.nip.io"
+mkcert "*.<LAB_SERVER_IP>.nip.io"
 cd ~
-#docker run -v /alphabravo/misc/certs:/certs -e SSL_DNS="*.$lab_server_ip.nip.io" -e SSL_IP="$lab_server_ip" -e SSL_EXPIRE="90" -e SSL_SUBJECT="$lab_server_ip.nip.io" paulczar/omgwtfssl
+#docker run -v /alphabravo/misc/certs:/certs -e SSL_DNS="*.<LAB_SERVER_IP>.nip.io" -e SSL_IP="<LAB_SERVER_IP>" -e SSL_EXPIRE="90" -e SSL_SUBJECT="<LAB_SERVER_IP>.nip.io" paulczar/omgwtfssl
 #sudo cat /alphabravo/misc/certs/cert.pem /alphabravo/misc/certs/ca.pem > /alphabravo/misc/certs/fullchain.pem
-sudo cat /alphabravo/misc/certs/_wildcard.$lab_server_ip.nip.io.pem /root/.local/share/mkcert/rootCA.pem /alphabravo/misc/certs/_wildcard.$lab_server_ip.nip.io-key.pem > /alphabravo/misc/certs/fullchain.pem
+sudo cat /alphabravo/misc/certs/_wildcard.<LAB_SERVER_IP>.nip.io.pem ~/.local/share/mkcert/rootCA.pem /alphabravo/misc/certs/_wildcard.<LAB_SERVER_IP>.nip.io-key.pem > /alphabravo/misc/certs/fullchain.pem
+cp /alphabravo/misc/certs/_wildcard.<LAB_SERVER_IP>.nip.io.pem /alphabravo/misc/certs/cert.pem
+cp /alphabravo/misc/certs/_wildcard.<LAB_SERVER_IP>.nip.io-key.pem /alphabravo/misc/certs/key.pem
 
 
 ## Install Code Server
-curl -fsSL -o /tmp/code-server_$code_version_amd64.deb https://github.com/coder/code-server/releases/download/v$code_version/code-server_$code_version_amd64.deb
-sudo dpkg -i /tmp/code-server_$code_version_amd64.deb
-systemctl stop code-server@$USER
+curl -fsSL -o /tmp/code-server_<CODE_VERSION>_amd64.deb https://github.com/coder/code-server/releases/download/v<CODE_VERSION>/code-server_<CODE_VERSION>_amd64.deb
+sudo dpkg -i /tmp/code-server_<CODE_VERSION>_amd64.deb
+systemctl stop code-server@<USER>
 rm /lib/systemd/system/code-server@.service
 cat >> /lib/systemd/system/code-server@.service<< EOF
 [Unit]
@@ -33,18 +37,18 @@ Description=code-server
 After=network.target
 
 [Service]
-User=root
-Group=root
+User=<USER>
+Group=r<USER>
 Type=exec
-Environment=PASSWORD=$code_password
-ExecStart=/usr/bin/code-server --bind-addr 0.0.0.0:8080 --user-data-dir /alphabravo/misc/code-server --auth password --cert-host code.$proxy_ip.nip.io --cert /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io.pem --cert-key /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io-key.pem /alphabravo
+Environment=PASSWORD=<CODE_PASSWORD>
+ExecStart=/usr/bin/code-server --bind-addr 0.0.0.0:8080 --user-data-dir /alphabravo/misc/code-server --auth password --cert-host code.<PROXY_IP>.nip.io --cert /alphabravo/misc/certs/cert.pem --cert-key /alphabravo/misc/certs/key.pem /alphabravo
 Restart=always
 User=%i
 
 [Install]
 WantedBy=default.target
 EOF
-sudo systemctl enable --now code-server@$USER
+sudo systemctl enable --now code-server@<USER>
 
 ## Install codelab extension
 FILE=/alphabravo/misc/code-server/extensions/codelab/codelab-0.0.1.vsix
@@ -53,28 +57,28 @@ if [ -f "$FILE" ]; then
 else 
     echo "$FILE does not exist. Installing Codelab."
     unzip /alphabravo/misc/code-server/codelab.zip -d /alphabravo/misc/code-server/extensions
-    sudo systemctl restart code-server@$USER
+    sudo systemctl restart code-server@<USER>
 fi
 
 ## Install K3s binary
 echo "Installing K3s..."
-curl -fsSL -o k3s https://github.com/k3s-io/k3s/releases/download/$k3s_version/k3s
+curl -fsSL -o k3s https://github.com/k3s-io/k3s/releases/download/<K3S_VERSION>/k3s
 chmod +x k3s
 sudo mv k3s /usr/local/bin
 
 ## Install RKE2 binary
 echo "Installing RKE2..."
-curl -fsSL -o rke2 https://github.com/rancher/rke2/releases/download/$rke2_version/rke2.linux-amd64
+curl -fsSL -o rke2 https://github.com/rancher/rke2/releases/download/<RKE2_VERSION>/rke2.linux-amd64
 chmod +x rke2
 sudo mv rke2 /usr/local/bin
 
 ## Install k3d binary
 echo "Installing K3d..."
-wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=$k3d_version bash
+wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=<K3D_VERSION> bash
 
 ## Install RKE binary
 echo "Installing RKE..."
-curl -fsSL -o rke https://github.com/rancher/rke/releases/download/$rke_version/rke_linux-amd64
+curl -fsSL -o rke https://github.com/rancher/rke/releases/download/<RKE_VERSION>/rke_linux-amd64
 chmod +x rke
 sudo mv rke /usr/local/bin
 
@@ -91,15 +95,26 @@ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stabl
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
 ## Run Rancher container
+echo "Starting Rancher..."
 docker-compose -f /alphabravo/misc/rancher/docker-compose.yaml up -d  > /dev/null 2>&1
 
-## Run Rancher container
+## Run Portainer container
+echo "Starting Portainer..."
 docker-compose -f /alphabravo/misc/portainer/docker-compose.yaml up -d  > /dev/null 2>&1
 
 ## Load Labs
-git clone --depth 1 $public_labs_repo /alphabravo/labs/public  > /dev/null 2>&1
+echo "Loading Labs..."
+LABS=/alphabravo/labs/public/README.md
+if [ ! -f $LABS ]; then
+    git clone --depth 1 https://github.com/AlphaBravoCompany/ab-training-labs.git /alphabravo/labs/public  > /dev/null 2>&1
+else 
+    cd /alphabravo/labs/public
+    git fetch origin master
+    git reset --hard origin/master
+fi
 
 ## Replace LABSERVERNAME with actual host DNS name
-find /alphabravo/labs/ -name '*.md' -exec sed -i -e 's/LABSERVERNAME/$lab_server_ip.nip.io/g' {} \;
-find /alphabravo/labs/ -name '*.yaml' -exec sed -i -e 's/LABSERVERNAME/$lab_server_ip.nip.io/g' {} \;
-find /alphabravo/labs/ -name '*.yml' -exec sed -i -e 's/LABSERVERNAME/$lab_server_ip.nip.io/g' {} \;
+echo "Updating Labs..."
+find /alphabravo/labs/ -name '*.md' -exec sed -i -e 's/LABSERVERNAME/<LAB_SERVER_IP>.nip.io/g' {} \;
+find /alphabravo/labs/ -name '*.yaml' -exec sed -i -e 's/LABSERVERNAME/<LAB_SERVER_IP>.nip.io/g' {} \;
+find /alphabravo/labs/ -name '*.yml' -exec sed -i -e 's/LABSERVERNAME/<LAB_SERVER_IP>.nip.io/g' {} \;

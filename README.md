@@ -1,6 +1,6 @@
 # AB Lab Server Bash
 
-This script uses a bash script with user provided variables to deploy the AlphaBravo lab server used for training.
+This script uses a bash script with user provided variables to deploy the AlphaBravo lab servers used for training.
 
 ## Requirements
 
@@ -32,6 +32,19 @@ You will need to configure SSH access to these nodes and have a key handy. Instr
 You can use any cloud host you like for the servers. It does not need to be publically exposed, but does need internet access (egress) to download the materials to the hosts. AWS, GCP, Azure, Hetzner, Contabo, DigitalOcean, Linode, etc should all work.
 
 Make sure you add an SSH public key to the platform and use the related private key to access the systems with the install script.
+
+## What is deployed?
+
+### 1x Proxy Server
+- TLS/SSL Certs
+- HAProxy to route traffic to lab server
+
+### 1x Lab Server
+- VSCode server accessible via web browser for lab excercises
+- Rancher UI for working with Kubernetes Clusters
+- Portainer UI for working with local Docker containers
+- AlphaBravo custom lab materials for training
+- RKE, K3s, RKE2, K3d and more for use with training
 
 ## Installation
 

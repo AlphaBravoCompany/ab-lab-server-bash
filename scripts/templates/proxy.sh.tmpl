@@ -4,6 +4,8 @@ set -e
 G="\e[32m"
 E="\e[0m"
 
+CERTGEN=<CERT>
+
 if ! grep -q 'Ubuntu' /etc/issue
   then
     echo -----------------------------------------------
@@ -15,21 +17,33 @@ fi
 ## Change ownership of SSH Key
 chmod 0600 /root/.ssh/id_rsa
 
-## Generate cert with mkcert
-mkcert -install
-cd /alphabravo/misc/certs
-mkcert "*.$proxy_ip.nip.io"
-#cat /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io.pem /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io-key.pem | tee cert-bundle.pem
-#docker run -v /alphabravo/misc/certs:/certs -e SSL_DNS="*.$proxy_ip.nip.io" -e SSL_IP="$proxy_ip" -e SSL_EXPIRE="90" -e SSL_SUBJECT="$proxy_ip.nip.io" paulczar/omgwtfssl
-#docker run -v /alphabravo/misc/certs:/certs -e SSL_DNS="*.$lab_server_ip.nip.io,*.$proxy_ip.nip.io,$lab_server_ip.nip.io,$proxy_ip.nip.io" -e SSL_IP="$lab_server_ip,$proxy_ip" -e SSL_EXPIRE="90" -e SSL_SUBJECT="$lab_server_ip.nip.io" paulczar/omgwtfssl
-#sudo cat /alphabravo/misc/certs/cert.pem /alphabravo/misc/certs/ca.pem > /alphabravo/misc/certs/fullchain.pem
-sudo cat /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io.pem /root/.local/share/mkcert/rootCA.pem /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io-key.pem > /alphabravo/misc/certs/cert-bundle.pem
-cd ~
+CERTFILE=/etc/letsencrypt/live/<PROXY_IP>.nip.io/cert.pem
+## Generate certs
+echo "Generating certificates..."
+if [ "$CERTGEN" == "selfsigned" ]; then
+  	mkcert -install
+    cd /alphabravo/misc/certs
+    mkcert "*.<PROXY_IP>.nip.io"
+    cp /alphabravo/misc/certs/_wildcard.<PROXY_IP>.nip.io.pem /alphabravo/misc/certs/cert.pem
+    cp /alphabravo/misc/certs/_wildcard.<PROXY_IP>.nip.io-key.pem /alphabravo/misc/certs/key.pem
+    cp ~/.local/share/mkcert/rootCA.pem /alphabravo/misc/certs/ca.pem
+    sudo cat /alphabravo/misc/certs/cert.pem /root/.local/share/mkcert/rootCA.pem /alphabravo/misc/certs/key.pem > /alphabravo/misc/certs/cert-bundle.pem
+    cd ~
+fi
+
+if [ "$CERTGEN" == "letsencrypt" ] && [ ! -f "$CERTFILE" ]; then
+    sudo certbot certonly --standalone --preferred-challenges http --agree-tos -m <LETSENCRYPT_EMAIL> -n -d rancher.<PROXY_IP>.nip.io,code.<PROXY_IP>.nip.io,portainer.<PROXY_IP>.nip.io,nginx.<PROXY_IP>.nip.io,tls-nginx.<PROXY_IP>.nip.io,tls-auth-nginx.<PROXY_IP>.nip.io,guestbook.<PROXY_IP>.nip.io,hello.<PROXY_IP>.nip.io,loki.<PROXY_IP>.nip.io,neuvector.<PROXY_IP>.nip.io,stackrox.<PROXY_IP>.nip.io,elastic.<PROXY_IP>.nip.io,argo.<PROXY_IP>.nip.io
+    cp /etc/letsencrypt/live/rancher.<PROXY_IP>.nip.io/fullchain.pem /alphabravo/misc/certs/cert.pem
+    cp /etc/letsencrypt/live/rancher.<PROXY_IP>.nip.io/fullchain.pem /alphabravo/misc/certs/fullchain.pem
+    cp /etc/letsencrypt/live/rancher.<PROXY_IP>.nip.io/privkey.pem /alphabravo/misc/certs/key.pem
+    sudo cat /alphabravo/misc/certs/fullchain.pem /alphabravo/misc/certs/key.pem > /alphabravo/misc/certs/cert-bundle.pem
+fi
 
 ## Copy generated TLS keys to lab-server
-scp -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io.pem $user@$lab_server_ip:/alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io.pem
-scp -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no /alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io-key.pem $user@$lab_server_ip:/alphabravo/misc/certs/_wildcard.$proxy_ip.nip.io-key.pem
-scp -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no /root/.local/share/mkcert/rootCA.pem $user@$lab_server_ip:/alphabravo/misc/certs/proxy_rootCA.pem
+scp -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no /alphabravo/misc/certs/cert.pem <USER>@<LAB_SERVER_IP>:/alphabravo/misc/certs/proxy_cert.pem
+scp -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no /alphabravo/misc/certs/key.pem <USER>@<LAB_SERVER_IP>:/alphabravo/misc/certs/proxy_key.pem
+scp -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no /alphabravo/misc/certs/ca.pem <USER>@<LAB_SERVER_IP>:/alphabravo/misc/certs/proxy_ca.pem
+#scp -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no /root/.local/share/mkcert/rootCA.pem $user@$lab_server_ip:/alphabravo/misc/certs/proxy_ca.pem
 
 ## Install HAProxy
 apt install haproxy -y
