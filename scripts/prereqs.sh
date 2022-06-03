@@ -57,16 +57,16 @@ echo "Installing Docker Compose..."
 curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose > /dev/null 2>&1
 sudo chmod +x /usr/local/bin/docker-compose > /dev/null 2>&1
 
-mkdir -p /alphabravo/misc/rancher
-mkdir -p /alphabravo/misc/registry
-mkdir -p /alphabravo/misc/portainer
-mkdir -p /alphabravo/misc/haproxy
-mkdir -p /alphabravo/misc/certs
-mkdir -p /alphabravo/misc/code-server
-mkdir -p /alphabravo/misc/code-server/User
-mkdir -p /alphabravo/labs
-mkdir -p /alphabravo/labs/public
-mkdir -p /alphabravo/labs/private
+sudo mkdir -p /alphabravo/misc/rancher
+sudo mkdir -p /alphabravo/misc/registry
+sudo mkdir -p /alphabravo/misc/portainer
+sudo mkdir -p /alphabravo/misc/haproxy
+sudo mkdir -p /alphabravo/misc/certs
+sudo mkdir -p /alphabravo/misc/code-server
+sudo mkdir -p /alphabravo/misc/code-server/User
+sudo mkdir -p /alphabravo/labs
+sudo mkdir -p /alphabravo/labs/public
+sudo mkdir -p /alphabravo/labs/private
 
 ## Install mkcert
 curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
