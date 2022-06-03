@@ -18,7 +18,7 @@ sudo apt upgrade -y  > /dev/null 2>&1
 
 ## Install Prereqs
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release unzip python3-pip \
-software-properties-common haveged bash-completion jq zsh zsh-autosuggestions libnss3-tools certbot > /dev/null 2>&1
+software-properties-common haveged bash-completion jq zsh zsh-autosuggestions libnss3-tools certbot git > /dev/null 2>&1
 
 ## Create user
 # echo "Creating AlphaBravo user..."
@@ -32,7 +32,7 @@ FILE=$HOME/.oh-my-zsh/oh-my-zsh.sh
 if [ -f "$FILE" ]; then
     echo "$FILE exists. No need to install oh-my-zsh again."
 else
-    mkdir -p /alphabravo/misc/dotfiles
+    sudo mkdir -p /alphabravo/misc/dotfiles
     git clone https://github.com/AlphaBravoCompany/ab-dotfiles.git /alphabravo/misc/dotfiles/
     chmod +x /alphabravo/misc/dotfiles/install.sh
     cd /alphabravo/misc/dotfiles
