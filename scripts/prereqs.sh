@@ -33,6 +33,7 @@ if [ -f "$FILE" ]; then
     echo "$FILE exists. No need to install oh-my-zsh again."
 else
     sudo mkdir -p /alphabravo/misc/dotfiles
+    sudo chmod 0777 -R /alphabravo
     git clone https://github.com/AlphaBravoCompany/ab-dotfiles.git /alphabravo/misc/dotfiles/
     chmod +x /alphabravo/misc/dotfiles/install.sh
     cd /alphabravo/misc/dotfiles
@@ -67,6 +68,7 @@ sudo mkdir -p /alphabravo/misc/code-server/User
 sudo mkdir -p /alphabravo/labs
 sudo mkdir -p /alphabravo/labs/public
 sudo mkdir -p /alphabravo/labs/private
+sudo chmod 0777 -R /alphabravo
 
 ## Install mkcert
 curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
