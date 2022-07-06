@@ -55,8 +55,8 @@ fi
 
 ## Installing Docker Compose
 echo "Installing Docker Compose..."
-curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose > /dev/null 2>&1
-sudo chmod +x /usr/local/bin/docker-compose > /dev/null 2>&1
+sudo curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
 sudo mkdir -p /alphabravo/misc/rancher
 sudo mkdir -p /alphabravo/misc/registry
@@ -71,6 +71,10 @@ sudo mkdir -p /alphabravo/labs/private
 sudo chmod 0777 -R /alphabravo
 
 ## Install mkcert
-curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-chmod +x mkcert-v*-linux-amd64
-sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+#curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+curl -fsSL -o mkcert https://dl.filippo.io/mkcert/latest?for=linux/amd64
+sudo chmod +x mkcert
+sudo cp mkcert /usr/local/bin/mkcert
+
+## Prereqs complete
+echo "Finished installing prereqs, moving on the proxy and labserver setup..."
