@@ -33,6 +33,25 @@ You can use any cloud host you like for the servers. It does not need to be publ
 
 Make sure you add an SSH public key to the platform and use the related private key to access the systems with the install script.
 
+### Cloud Server Networking
+
+In order for the proxy server to talk to the lab-server, we need to open the following ports from the proxy IP to the lab-server IP. You will need to be familiar with your providers method of firewalling (security groups in AWS, firewalls in Hetzner, etc).
+
+Alternatively, you can open all ports to the internet for both servers, but make sure you know what you are doing.
+
+Proxy Ports to allow from anywhere:
+- 80
+- 443
+- 22
+
+Lab Server Ports to allow from anywhere:
+- 22
+
+Lab Server Ports to allow from Proxy host:
+- 9000
+- 8080
+- 12443
+
 ## What is deployed?
 
 ### 1x Proxy Server
@@ -50,8 +69,8 @@ Make sure you add an SSH public key to the platform and use the related private 
 
 1. Clone repo
 2. `cd ab-lab-server-bash`
-3. Copy `vars.sh.tmpl` to `vars.sh` - `cp vars.sh.tmpl vars.sh`
-3. Modify `vars.sh` with your own variables (server IPs, passwords, key path, etc)
+3. Copy `.env.tmpl` to `.env` - `cp env.tmpl .env`
+3. Modify `.env` with your own variables (server IPs, passwords, key path, etc)
 4. Run `chmod +x deploy.sh`
 5. Run `./deploy.sh`
 6. When the script completes, details about how to access your environment will be output on the screen and saved to `server-details.txt` file.

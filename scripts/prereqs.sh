@@ -13,10 +13,12 @@ if ! grep -q 'Ubuntu' /etc/issue
 fi
 
 ## Update OS
+echo -e ${G} "Installing OS Updates..."${E}
 sudo apt update  > /dev/null 2>&1
 sudo apt upgrade -y  > /dev/null 2>&1
 
 ## Install Prereqs
+echo -e ${G}"Installing prereq packages..."${E}
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release unzip python3-pip \
 software-properties-common haveged bash-completion jq zsh zsh-autosuggestions libnss3-tools certbot git > /dev/null 2>&1
 
@@ -51,6 +53,7 @@ else
     echo "$FILE does not exist. Installing Docker."
     curl -fsSL https://get.docker.com -o /tmp/get-docker.sh > /dev/null 2>&1
     sudo sh /tmp/get-docker.sh > /dev/null 2>&1
+    sudo usermod -aG docker $USER
 fi
 
 ## Installing Docker Compose
@@ -76,5 +79,7 @@ curl -fsSL -o mkcert https://dl.filippo.io/mkcert/latest?for=linux/amd64
 sudo chmod +x mkcert
 sudo cp mkcert /usr/local/bin/mkcert
 
+export HOSTNAME="`hostname`"
+
 ## Prereqs complete
-echo "Finished installing prereqs, moving on the proxy and labserver setup..."
+echo -e ${G}"Finished installing prereqs on $HOSTNAME, moving on the proxy and labserver setup ..."${E}

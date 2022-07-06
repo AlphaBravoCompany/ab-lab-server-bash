@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source vars.sh
+source .env
 
 set -e
 G="\e[32m"
@@ -22,7 +22,7 @@ do
     key=$(awk -F= '{print $1}' <<< "$line")
     value=$(awk -F= '{print $2}' <<< "$line")
     sed -i 's|<'"$key"'>|'"$value"'|g' scripts/deploy/lab-server.sh
-done < vars.sh
+done < .env
 
 ## Update Rancher Docker Compose file from vars
 cp files/templates/rancher-docker-compose.yaml.tmpl files/deploy/rancher-docker-compose.yaml
@@ -31,7 +31,7 @@ do
     key=$(awk -F= '{print $1}' <<< "$line")
     value=$(awk -F= '{print $2}' <<< "$line")
     sed -i 's|<'"$key"'>|'"$value"'|g' files/deploy/rancher-docker-compose.yaml
-done < vars.sh
+done < .env
 
 ## Update proxy.sh file from vars
 cp scripts/templates/proxy.sh.tmpl scripts/deploy/proxy.sh
@@ -40,7 +40,7 @@ do
     key=$(awk -F= '{print $1}' <<< "$line")
     value=$(awk -F= '{print $2}' <<< "$line")
     sed -i 's|<'"$key"'>|'"$value"'|g' scripts/deploy/proxy.sh
-done < vars.sh
+done < .env
 
 ## Update Portainer Docker Compose file from vars
 cp files/templates/portainer-docker-compose.yaml.tmpl files/deploy/portainer-docker-compose.yaml
@@ -49,7 +49,7 @@ do
     key=$(awk -F= '{print $1}' <<< "$line")
     value=$(awk -F= '{print $2}' <<< "$line")
     sed -i 's|<'"$key"'>|'"$value"'|g' files/deploy/portainer-docker-compose.yaml
-done < vars.sh
+done < .env
 
 ## Update Portainer password file from vars
 cp files/templates/portainer-password.txt.tmpl files/deploy/portainer-password.txt
@@ -58,7 +58,7 @@ do
     key=$(awk -F= '{print $1}' <<< "$line")
     value=$(awk -F= '{print $2}' <<< "$line")
     sed -i 's|<'"$key"'>|'"$value"'|g' files/deploy/portainer-password.txt
-done < vars.sh
+done < .env
 
 ## Update haproxy file from vars
 cp files/templates/haproxy.cfg.tmpl files/deploy/haproxy.cfg
@@ -67,10 +67,10 @@ do
     key=$(awk -F= '{print $1}' <<< "$line")
     value=$(awk -F= '{print $2}' <<< "$line")
     sed -i 's|<'"$key"'>|'"$value"'|g' files/deploy/haproxy.cfg
-done < vars.sh
+done < .env
 
 ## Generate SSH key
-echo "Generating SSH Key..."
+echo -e ${G} "Generating SSH Key..."${E}
 FILE=files/deploy/id_rsa
 if [ -f "$FILE" ]; then
     echo "$FILE exists. No need to generate SSH key."
@@ -80,12 +80,17 @@ else
 fi
 
 ##  Prerequisites on each server
-echo "Installing Prereqs..."
+echo -e ${G} "Installing Prereqs..."${E}
 ssh -o "StrictHostKeyChecking no" -i $SSH_KEY $USER@$PROXY_IP 'bash -s' < scripts/prereqs.sh &
 ssh -o "StrictHostKeyChecking no" -i $SSH_KEY $USER@$LAB_SERVER_IP 'bash -s' < scripts/prereqs.sh &
 wait
 
+##  Echo prereqs complete
+echo -e ${G}"Prereq install complete..."${E}
+sleep 5
+
 ## Copy files to remote hosts
+echo -e ${G}"Copying files to remote hosts..."${E}
 scp -i $SSH_KEY files/deploy/rancher-docker-compose.yaml $USER@$LAB_SERVER_IP:/alphabravo/misc/rancher/docker-compose.yaml
 scp -i $SSH_KEY files/deploy/portainer-docker-compose.yaml $USER@$LAB_SERVER_IP:/alphabravo/misc/portainer/docker-compose.yaml
 scp -i $SSH_KEY files/deploy/portainer-password.txt $USER@$LAB_SERVER_IP:/alphabravo/misc/portainer/portainer-password.txt
